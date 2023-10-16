@@ -5,7 +5,6 @@ import exercise.article.Article;
 import exercise.article.LibraryImpl;
 import exercise.worker.Worker;
 import exercise.worker.WorkerImpl;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +30,11 @@ public class Main {
                 "Функциональное чтение позволяет эффективнее работать с новой информацией. Как этот метод поможет читать книги для программистов и не только? Разбираем в сегодняшней статье.",
                 "Иван Иванов",
                 null));
+
         worker.addNewArticles(newArticles);
         System.out.println("...");
         System.out.println("Проверяем каталог");
 
         System.out.println(worker.getCatalog());
-
     }
 }
