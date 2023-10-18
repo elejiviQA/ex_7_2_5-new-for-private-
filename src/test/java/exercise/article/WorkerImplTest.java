@@ -24,7 +24,7 @@ class WorkerImplTest {
     @Mock
     private Library library;
     private Worker worker;
-    private final List<Article> articles = new ArrayList<>();
+    private final List<Article> ARTICLES = new ArrayList<>();
 
     public String getTestCatalog() {
         return """
@@ -90,57 +90,57 @@ class WorkerImplTest {
     @DisplayName("Использование года статьи")
     @Test
     void testUseYearInStoreMethod() {
-        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
-        worker.addNewArticles(articles);
-        runAssertion((msg) -> verify(library, description(msg)).store(2023, articles), "Для операции merge должно использоваться корректное число года\n");
+        ARTICLES.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        worker.addNewArticles(ARTICLES);
+        runAssertion((msg) -> verify(library, description(msg)).store(2023, ARTICLES), "Для операции merge должно использоваться корректное число года\n");
     }
 
     //UPDATE CATALOG
     @DisplayName("Обновление каталога статьей со всеми непустыми атрибутами")
     @Test
     void testAddNewArticle() {
-        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
-        worker.addNewArticles(articles);
+        ARTICLES.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        worker.addNewArticles(ARTICLES);
         runAssertion((msg) -> verify(library, description(msg)).updateCatalog(), "Статья с непустыми значениями атрибутов должна быть добавлена в библиотеку\n");
     }
 
     @DisplayName("Обновление каталога статьей без указанной даты")
     @Test
     void testAddNewArticleWithoutDate() {
-        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", null));
-        worker.addNewArticles(articles);
+        ARTICLES.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", null));
+        worker.addNewArticles(ARTICLES);
         runAssertion((msg) -> verify(library, description(msg)).updateCatalog(), "Статья без указанной даты в итоге должна быть добавлена в библиотеку\n");
     }
 
     @DisplayName("Обновление каталога статьей со всеми пустыми значениями атрибутов")
     @Test
     void testAddNullableArticle() {
-        articles.add(new Article(null, null, null, null));
-        worker.addNewArticles(articles);
+        ARTICLES.add(new Article(null, null, null, null));
+        worker.addNewArticles(ARTICLES);
         runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья со всеми пустыми значениями атрибутов не должна быть добавлена в библиотеку\n");
     }
 
     @DisplayName("Обновление каталога статьей без названия")
     @Test
     void testAddNewArticleWithoutTitle() {
-        articles.add(new Article(null, "Some code", "noBrain", LocalDate.of(2023, 10, 11)));
-        worker.addNewArticles(articles);
+        ARTICLES.add(new Article(null, "Some code", "noBrain", LocalDate.of(2023, 10, 11)));
+        worker.addNewArticles(ARTICLES);
         runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без названия не должна быть добавлена в библиотеку\n");
     }
 
     @DisplayName("Обновление каталога статьей без контента")
     @Test
     void testAddNewArticleWithoutContent() {
-        articles.add(new Article("Hello, Java!", null, "noBrain", LocalDate.of(2023, 10, 11)));
-        worker.addNewArticles(articles);
+        ARTICLES.add(new Article("Hello, Java!", null, "noBrain", LocalDate.of(2023, 10, 11)));
+        worker.addNewArticles(ARTICLES);
         runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без контента не должна быть добавлена в библиотеку\n");
     }
 
     @DisplayName("Обновление каталога статьей без автора")
     @Test
     void testAddNewArticleWithoutAuthor() {
-        articles.add(new Article("Hello, Java!", "Some code", null, LocalDate.of(2023, 10, 11)));
-        worker.addNewArticles(articles);
+        ARTICLES.add(new Article("Hello, Java!", "Some code", null, LocalDate.of(2023, 10, 11)));
+        worker.addNewArticles(ARTICLES);
         runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без автора не должна быть добавлена в библиотеку\n");
     }
 
@@ -149,50 +149,50 @@ class WorkerImplTest {
     @DisplayName("Подготовка статьи со всеми непустыми атрибутами")
     @Test
     void testPrepareNewArticle() {
-        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
-        runAssertion((msg) -> assertEquals(1, worker.prepareArticles(articles).size(), msg), "Статья со всеми непустыми атрибутами должна быть сохранена \n");
+        ARTICLES.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        runAssertion((msg) -> assertEquals(1, worker.prepareArticles(ARTICLES).size(), msg), "Статья со всеми непустыми атрибутами должна быть сохранена \n");
     }
 
     @DisplayName("Подготовка статьи без названия")
     @Test
     void testPrepareNewArticleWithoutTitle() {
-        articles.add(new Article(null, "Some code", "noBrain", LocalDate.of(2023, 10, 11)));
-        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(articles).size(), msg), "Статья без названия не должна быть сохранена\n");
+        ARTICLES.add(new Article(null, "Some code", "noBrain", LocalDate.of(2023, 10, 11)));
+        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(ARTICLES).size(), msg), "Статья без названия не должна быть сохранена\n");
     }
 
     @DisplayName("Подготовка статьи без контента")
     @Test
     void testPrepareNewArticleWithoutContent() {
-        articles.add(new Article("Hello, Java!", null, "noBrain", LocalDate.of(2023, 10, 11)));
-        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(articles).size(), msg), "Статья без контента не должна быть сохранена\n");
+        ARTICLES.add(new Article("Hello, Java!", null, "noBrain", LocalDate.of(2023, 10, 11)));
+        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(ARTICLES).size(), msg), "Статья без контента не должна быть сохранена\n");
     }
 
     @DisplayName("Подготовка статьи без автора")
     @Test
     void testPrepareNewArticleWithoutAuthor() {
-        articles.add(new Article("Hello, Java!", "Some code", null, LocalDate.of(2023, 10, 11)));
-        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(articles).size(), msg), "Статья без автора не должна быть сохранена\n");
+        ARTICLES.add(new Article("Hello, Java!", "Some code", null, LocalDate.of(2023, 10, 11)));
+        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(ARTICLES).size(), msg), "Статья без автора не должна быть сохранена\n");
     }
 
     @DisplayName("Подготовка статьи без даты")
     @Test
     void testPrepareNewArticleWithoutDate() {
-        articles.add(new Article("Hello, Java!", "Some code", "noBrain", null));
-        runAssertion((msg) -> assertEquals(LocalDate.now(), worker.prepareArticles(articles).get(0).getCreationDate(), msg), "Статья без указанной даты должна получать текущую дату\n");
+        ARTICLES.add(new Article("Hello, Java!", "Some code", "noBrain", null));
+        runAssertion((msg) -> assertEquals(LocalDate.now(), worker.prepareArticles(ARTICLES).get(0).getCreationDate(), msg), "Статья без указанной даты должна получать текущую дату\n");
     }
 
     @DisplayName("Подготовка статей с одинаковым названием")
     @Test
     void testPrepareNewArticleWithSameNames() {
-        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
-        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
-        runAssertion((msg) -> assertEquals(1, worker.prepareArticles(articles).size(), msg), "На сохранение должны передаваться только уникальные статьи\n");
+        ARTICLES.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        ARTICLES.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        runAssertion((msg) -> assertEquals(1, worker.prepareArticles(ARTICLES).size(), msg), "На сохранение должны передаваться только уникальные статьи\n");
     }
 
     @DisplayName("Подготовка статьи с пустыми значениями атрибутов")
     @Test
     void testPrepareNullableArticle() {
-        articles.add(new Article(null, null, null, null));
-        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(articles).size(), msg), "Статья с пустыми значениями атрибутов не должна быть сохранена\n");
+        ARTICLES.add(new Article(null, null, null, null));
+        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(ARTICLES).size(), msg), "Статья с пустыми значениями атрибутов не должна быть сохранена\n");
     }
 }
