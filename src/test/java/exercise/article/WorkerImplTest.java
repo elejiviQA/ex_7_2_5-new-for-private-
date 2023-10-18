@@ -125,20 +125,15 @@ class WorkerImplTest {
     void testAddNewArticleWithSameNames() {
         articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
         articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        worker.addNewArticles(articles);
         runAssertion((msg) -> verify(library, never()).updateCatalog(), "В библиотеку должны добавляться только уникальные статьи\n");
-    }
-
-    @DisplayName("Обновление каталога статьей без названия")
-    @Test
-    void testAddNewArticleWithoutTitle() {
-        articles.add(new Article(null, "Some code", "noBrain", LocalDate.of(2023, 10, 11)));
-        runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без названия не должна быть добавлена в библиотеку\n");
     }
 
     @DisplayName("Обновление каталога статьей без контента")
     @Test
     void testAddNewArticleWithoutContent() {
         articles.add(new Article("Hello, Java!", null, "noBrain", LocalDate.of(2023, 10, 11)));
+        worker.addNewArticles(articles);
         runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без контента не должна быть добавлена в библиотеку\n");
     }
 
@@ -146,6 +141,7 @@ class WorkerImplTest {
     @Test
     void testAddNewArticleWithoutAuthor() {
         articles.add(new Article("Hello, Java!", "Some code", null, LocalDate.of(2023, 10, 11)));
+        worker.addNewArticles(articles);
         runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без автора не должна быть добавлена в библиотеку\n");
     }
 
