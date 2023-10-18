@@ -72,9 +72,7 @@ class WorkerImplTest {
         runAssertion((msg) -> assertEquals("Список доступных статей:\n", worker.getCatalog(), msg), "Заголовок пустого каталога должен совпадать с тестовым шаблоном\n");
     }
 
-    //getCatalog #0
-    //неизвестные, неописанные причины
-    @DisplayName("Каталог статей из непустой библиотеки")
+    @DisplayName("Каталог статей из непустой библиотеки") //неизвестные, неописанные причины
     @Test
     void testGetCatalogFromNotEmptyLibrary() {
         runAssertion((msg) -> assertEquals(getTestCatalog(), getCatalog(), msg), "Каталог должен удовлетворять тестовому шаблону\n");
@@ -122,7 +120,6 @@ class WorkerImplTest {
         runAssertion((msg) -> assertTrue(getCatalog().lines().skip(1).map(String::strip).toList().containsAll(getTestUnorderedTitles()), msg), "Должны совпадать названия статей\n");
     }
 
-
     @DisplayName("Использование года статьи")
     @Test
     void testUseYearInStoreMethod() {
@@ -131,7 +128,6 @@ class WorkerImplTest {
         runAssertion((msg) -> verify(library, description(msg)).store(2023, ARTICLES), "Для операции merge должно использоваться корректное число года\n");
     }
 
-    //UPDATE CATALOG
     @DisplayName("Обновление каталога статьей со всеми непустыми атрибутами")
     @Test
     void testAddNewArticle() {
@@ -180,8 +176,6 @@ class WorkerImplTest {
         runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без автора не должна быть добавлена в библиотеку\n");
     }
 
-
-    //PREPARE ARTICLES
     @DisplayName("Подготовка статьи со всеми непустыми атрибутами")
     @Test
     void testPrepareNewArticle() {
