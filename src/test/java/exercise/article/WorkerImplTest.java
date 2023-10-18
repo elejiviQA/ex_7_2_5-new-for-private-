@@ -120,6 +120,13 @@ class WorkerImplTest {
         runAssertion((msg) -> assertTrue(getCatalog().lines().skip(1).map(String::strip).toList().containsAll(getTestUnorderedTitles()), msg), "Должны совпадать названия статей\n");
     }
 
+    @DisplayName("Выставление даты")
+    @Test
+    void testAvailabilityOfDates() {
+        ARTICLES.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        runAssertion((msg) -> assertEquals(2023, worker.prepareArticles(ARTICLES).get(0).getCreationDate().getYear()), "Для статьи должна быть выставлена дата\n");
+    }
+
     @DisplayName("Использование года статьи")
     @Test
     void testUseYearInStoreMethod() {
