@@ -54,7 +54,7 @@ class WorkerImplTest {
             if (assertionError == null) {
                 log.info("[TEST WAS SUCCESSFUL]: " + message + stackTraceElements[2] + "\n");
             } else {
-                log.info( "[TEST WAS FAILED]: " + message + stackTraceElements[2] + "\n");
+                log.info("[TEST WAS FAILED]: " + message + stackTraceElements[2] + "\n");
                 throw assertionError;
             }
         }
@@ -95,7 +95,7 @@ class WorkerImplTest {
     @DisplayName("Отступ строки")
     @Test
     void testLineIndent() {
-        runAssertion((msg) -> assertEquals(4,getCatalog().lines().skip(1).findFirst().orElse("").chars().limit(4).filter(c -> c == ' ').count(), msg), "Должен совпадать отступ строки\n");
+        runAssertion((msg) -> assertEquals(4, getCatalog().lines().skip(1).findFirst().orElse("").chars().limit(4).filter(c -> c == ' ').count(), msg), "Должен совпадать отступ строки\n");
     }
 
     @DisplayName("Символы пробела")
@@ -121,8 +121,6 @@ class WorkerImplTest {
     void testTitlesNames() {
         runAssertion((msg) -> assertTrue(getCatalog().lines().skip(1).map(String::strip).toList().containsAll(getTestUnorderedTitles()), msg), "Должны совпадать названия статей\n");
     }
-
-
 
 
     @DisplayName("Использование года статьи")
