@@ -69,23 +69,63 @@ class WorkerImplTest {
     @Test
     @DisplayName("Каталог статей из пустой библиотеки")
     void testGetCatalogFromEmptyLibrary() {
-        runAssertion((msg) -> assertEquals("Список доступных статей:\n", worker.getCatalog(), msg), "Заголовок каталога должен совпадать с тестовым шаблоном\n");
+        runAssertion((msg) -> assertEquals("Список доступных статей:\n", worker.getCatalog(),
+                msg),
+                "Заголовок пустого каталога должен совпадать с тестовым шаблоном\n");
     }
 
+    //getCatalog #0
+    //неизвестные, неописанные причины
     @DisplayName("Каталог статей из непустой библиотеки")
     @Test
     void testGetCatalogFromNotEmptyLibrary() {
-        assertAll("Требования к каталогу",
-                () -> runAssertion((msg) -> assertEquals("Список доступных статей:", getCatalog().lines().findFirst().orElse(""), msg), "Заголовок каталога должен совпадать с тестовым шаблоном\n"),
-                () -> runAssertion((msg) -> assertEquals(2, getCatalog().lines().skip(1).count(), msg), "Должно совпадать количество названий статей\n"),
-                () -> runAssertion((msg) -> assertEquals(4,getCatalog().lines().skip(1).findFirst().orElse("").chars().limit(4).filter(c -> c == ' ').count(), msg), "Должен совпадать отступ строки\n"),
-                () -> runAssertion((msg) -> assertEquals(10, getCatalog().chars().filter(c -> c == ' ').count(), msg), "Должно совпадать количество символов пробела\n"),
-                () -> runAssertion((msg) -> assertEquals(3, getCatalog().chars().filter(c -> c == '\n').count(), msg), "Должно совпадать количество символов перевода строки\n"),
-                () -> runAssertion((msg) -> assertTrue(getCatalog().lines().skip(1).map(String::strip).toList().containsAll(getTestUnorderedTitles()), msg), "Должны совпадать названия статей\n"),
-                () -> runAssertion((msg) -> assertTrue(getCatalog().indexOf(getTestUnorderedTitles().get(1)) < getCatalog().indexOf(getTestUnorderedTitles().get(0)), msg), "Названия статей должны быть отсортированы в алфавитном порядке\n"));
-        //неизвестные, неописанные причины
         runAssertion((msg) -> assertEquals(getTestCatalog(), getCatalog(), msg), "Каталог должен удовлетворять тестовому шаблону\n");
     }
+
+    @DisplayName("Заголовок каталога")
+    @Test
+    void testCatalogHeader() {
+        runAssertion((msg) -> assertEquals("Список доступных статей:", getCatalog().lines().findFirst().orElse(""), msg), "Заголовок каталога должен совпадать с тестовым шаблоном\n");
+    }
+
+    @DisplayName("Количество названий статей")
+    @Test
+    void testNumOfTitlesNames() {
+        runAssertion((msg) -> assertEquals(2, getCatalog().lines().skip(1).count(), msg), "Должно совпадать количество названий статей\n");
+    }
+
+    @DisplayName("Отступ строки")
+    @Test
+    void testLineIndent() {
+        runAssertion((msg) -> assertEquals(4,getCatalog().lines().skip(1).findFirst().orElse("").chars().limit(4).filter(c -> c == ' ').count(), msg), "Должен совпадать отступ строки\n");
+    }
+
+    @DisplayName("Символы пробела")
+    @Test
+    void testNumOfSpaceCh() {
+        runAssertion((msg) -> assertEquals(10, getCatalog().chars().filter(c -> c == ' ').count(), msg), "Должно совпадать количество символов пробела\n");
+    }
+
+    @DisplayName("Символы перевода строки")
+    @Test
+    void testNumOfLineFeedCh() {
+        runAssertion((msg) -> assertEquals(3, getCatalog().chars().filter(c -> c == '\n').count(), msg), "Должно совпадать количество символов перевода строки\n");
+    }
+
+    @DisplayName("Алфавитный порядок названий статей")
+    @Test
+    void testAlphabetOrder() {
+        runAssertion((msg) -> assertTrue(getCatalog().indexOf(getTestUnorderedTitles().get(1)) < getCatalog().indexOf(getTestUnorderedTitles().get(0)), msg), "Названия статей должны быть отсортированы в алфавитном порядке\n");
+    }
+
+    @DisplayName("Названия статей")
+    @Test
+    void testTitlesNames() {
+        runAssertion((msg) -> assertTrue(getCatalog().lines().skip(1).map(String::strip).toList().containsAll(getTestUnorderedTitles()), msg), "Должны совпадать названия статей\n");
+    }
+
+
+
 
     @DisplayName("Использование года статьи")
     @Test
