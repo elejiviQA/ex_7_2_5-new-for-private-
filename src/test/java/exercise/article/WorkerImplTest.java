@@ -140,6 +140,7 @@ class WorkerImplTest {
     void testAddNewArticle() {
         ARTICLES.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
         worker.addNewArticles(ARTICLES);
+        runAssertion((msg) -> assertEquals(1, worker.prepareArticles(ARTICLES).size(), msg), "Статья с непустыми значениями атрибутов должна быть сохранена \n");
         runAssertion((msg) -> verify(library, description(msg)).updateCatalog(), "Статья с непустыми значениями атрибутов должна быть добавлена в библиотеку\n");
     }
 
