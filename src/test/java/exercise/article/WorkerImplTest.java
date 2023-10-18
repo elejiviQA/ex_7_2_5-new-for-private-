@@ -1,195 +1,203 @@
 package exercise.article;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
+import exercise.MyFunInterface;
 import exercise.worker.Worker;
 import exercise.worker.WorkerImpl;
+import lombok.extern.java.Log;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@Log
+@DisplayName("Проверка реализации работника")
 class WorkerImplTest {
-    private final String testCatalog = """
-                Список доступных статей:
-                    Абрикос
-                    Яблоко
-                """;
-    private final String testElementDelimiter = " {4}";
-    private final String testCatalogHeader = Arrays.stream(testCatalog.replaceAll(testElementDelimiter, "").split("\n")).toList().get(0).strip();
-    private final Stream<String> testTitles = Stream.of("Яблоко", "Абрикос");
 
     @Mock
     private Library library;
     private Worker worker;
-    private List<String> titles;
-    private List<Article> articles;
+    private final List<Article> articles = new ArrayList<>();
+
+    public String getTestCatalog() {
+        return """
+                Список доступных статей:
+                    Абрикос
+                    Яблоко
+                """;
+    }
+
+    public List<String> getTestUnorderedTitles() {
+        return List.of("Яблоко", "Абрикос");
+    }
+
+    public String getCatalog() {
+        when(library.getAllTitles()).thenReturn(getTestUnorderedTitles());
+        return worker.getCatalog();
+    }
+
+    public void runAssertion(MyFunInterface myFunFunction, String message) {
+        AssertionError assertionError = null;
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        try {
+            myFunFunction.goFun(message);
+        } catch (AssertionError aErr) {
+            assertionError = aErr;
+        } finally {
+            if (assertionError == null) {
+                log.info("[TEST WAS SUCCESSFUL]: " + message + stackTraceElements[2] + "\n");
+            } else {
+                log.info( "[TEST WAS FAILED]: " + message + stackTraceElements[2] + "\n");
+                throw assertionError;
+            }
+        }
+    }
 
     @BeforeEach
     void prepare() {
         MockitoAnnotations.openMocks(this);
         worker = new WorkerImpl(library);
-        when(library.getAllTitles()).thenReturn(List.of("Яблоко", "Абрикос"));
-        titles = new ArrayList<>(Arrays.stream(worker.getCatalog().replaceAll(testElementDelimiter, "").split("\n")).toList());
-        articles = new ArrayList<>();
     }
 
-    //assertTrue(worker.getCatalog().contains("Яблоко"));
-    @DisplayName("Формирование каталога статей")
     @Test
-    public void testFormationOfTitles() {
-        assertEquals(testCatalog, worker.getCatalog(),
-                "Не соответствие шаблону: неверная реализация");
+    @DisplayName("Каталог статей из пустой библиотеки")
+    void testGetCatalogFromEmptyLibrary() {
+        runAssertion((msg) -> assertEquals("Список доступных статей:\n", worker.getCatalog(), msg), "Заголовок каталога должен совпадать с тестовым шаблоном\n");
     }
 
-    //
-    @DisplayName("Количество статей")
+    @DisplayName("Каталог статей из непустой библиотеки")
     @Test
-    public void testNumOfTitles() {
-        if (testCatalogHeader.equals(titles.get(0).strip())) {
-            titles.remove(0);
-        }
-        assertTrue(testTitles.allMatch(titles::contains), "Не совпадает количество названий статей");
+    void testGetCatalogFromNotEmptyLibrary() {
+        assertAll("Требования к каталогу",
+                () -> runAssertion((msg) -> assertEquals("Список доступных статей:", getCatalog().lines().findFirst().orElse(""), msg), "Заголовок каталога должен совпадать с тестовым шаблоном\n"),
+                () -> runAssertion((msg) -> assertEquals(2, getCatalog().lines().skip(1).count(), msg), "Должно совпадать количество названий статей\n"),
+                () -> runAssertion((msg) -> assertEquals(4,getCatalog().lines().skip(1).findFirst().orElse("").chars().limit(4).filter(c -> c == ' ').count(), msg), "Должен совпадать отступ строки\n"),
+                () -> runAssertion((msg) -> assertEquals(10, getCatalog().chars().filter(c -> c == ' ').count(), msg), "Должно совпадать количество символов пробела\n"),
+                () -> runAssertion((msg) -> assertEquals(3, getCatalog().chars().filter(c -> c == '\n').count(), msg), "Должно совпадать количество символов перевода строки\n"),
+                () -> runAssertion((msg) -> assertTrue(getCatalog().lines().skip(1).map(String::strip).toList().containsAll(getTestUnorderedTitles()), msg), "Должны совпадать названия статей\n"),
+                () -> runAssertion((msg) -> assertTrue(getCatalog().indexOf(getTestUnorderedTitles().get(1)) < getCatalog().indexOf(getTestUnorderedTitles().get(0)), msg), "Названия статей должны быть отсортированы в алфавитном порядке\n"));
+        //неизвестные, неописанные причины
+        runAssertion((msg) -> assertEquals(getTestCatalog(), getCatalog(), msg), "Каталог должен удовлетворять тестовому шаблону\n");
     }
 
-    //
-    @DisplayName("Количество символов перевода строки")
+    @DisplayName("Использование года статьи")
     @Test
-    public void testNumOfFeedLineCh() {
-        assertEquals(testCatalog.chars().filter(c -> c == '\n').count(),
-                worker.getCatalog().chars().filter(c -> c == '\n').count(),
-                "Не совпадает количество символов перевода строки");
-    }
-
-    //
-    @DisplayName("Заголовок каталога")
-    @Test
-    public void testCatalogHeader() {
-        assertEquals(testCatalog.lines().findFirst().orElse("Пустой шаблон"),
-                titles.get(0).strip(),
-                "Заголовок не совпадает");
-    }
-
-    //
-    @DisplayName("Названия статей")
-    @Test
-    public void testTitlesNames() {
-        titles = titles.stream().map(String::strip).collect(Collectors.toList());
-        if (testCatalogHeader.equals(titles.get(0).strip())) {
-            titles.remove(0);
-        }
-        assertTrue(testTitles.allMatch(titles::contains),
-                "Не совпадают названия статей");
-    }
-
-    //
-    @DisplayName("Количество символов пробела")
-    @Test
-    public void testNumOfSpaceChars() {
-        assertEquals(testCatalog.chars().filter(c -> c == ' ').count(),
-                worker.getCatalog().chars().filter(c -> c == ' ').count(),
-                "Не совпадает количество символов пробела");
-    }
-
-    //
-    @DisplayName("Названия статей в алфавитном порядке")
-    @Test
-    public void testIsAlphabeticalOrderedTitles() {
-        if (testCatalog.lines().findFirst().orElse("Пустой шаблон").equals(titles.get(0).strip())) {
-            titles.remove(0);
-        }
-        assertEquals(testTitles.sorted().toList(), titles,
-                "Названия статей не отсортированы в алфавитном порядке");
-    }
-
-    @DisplayName("Сохранение статей")
-    @Test
-    public void testSaveArticles() {
-        articles.add(new Article(
-                "Hello, Mockito!",
-                "Where is verify?",
-                "noBrain",
-                LocalDate.of(2023, 10, 16)));
+    void testUseYearInStoreMethod() {
+        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
         worker.addNewArticles(articles);
-        verify(library,
-                description("Неверная реализация работы с числом года: merge с использованием некорректного года"))
-                .store(2023, articles);
+        runAssertion((msg) -> verify(library, description(msg)).store(2023, articles), "Для операции merge должно использоваться корректное число года\n");
     }
 
-    @DisplayName("Статья без названия")
+    //UPDATE CATALOG
+    @DisplayName("Обновление каталога статьей со всеми атрибутами")
     @Test
-    public void testArticleWithoutTitle() {
-        articles.add(new Article(
-                null,
-                "Some code",
-                "noBrain",
-                LocalDate.of(2023, 10, 11)));
-        assertEquals(0, worker.prepareArticles(articles).size(),
-                "Неверная реализация обработки: статья без названия не должна быть сохранена");
+    void testAddNewArticle() {
+        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        worker.addNewArticles(articles);
+        runAssertion((msg) -> verify(library, description(msg)).updateCatalog(), "Статье со всеми атрибутами должна быть добавлена в библиотеку\n");
     }
 
-    @DisplayName("Статья без контента")
+    @DisplayName("Обновление каталога статьей без указанной даты")
     @Test
-    public void testArticleWithoutContent() {
-        articles.add(new Article(
-                "Hello, Java!",
-                null,
-                "noBrain",
-                LocalDate.of(2023, 10, 11)));
-        assertEquals(0, worker.prepareArticles(articles).size(),
-                "Неверная реализация обработки: статья без контента не должна быть сохранена");
+    void testAddNewArticleWithoutDate() {
+        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", null));
+        worker.addNewArticles(articles);
+        runAssertion((msg) -> verify(library, description(msg)).updateCatalog(), "Статья без указанной даты должна быть добавлена в библиотеку\n");
     }
 
-    @DisplayName("Статья без автора")
+    @DisplayName("Обновление каталога статьей со всеми пустыми значениями атрибутов")
     @Test
-    public void testArticleWithoutAuthor() {
-        articles.add(new Article(
-                "Hello, Java!",
-                "Some code",
-                null,
-                LocalDate.of(2023, 10, 11)));
-        assertEquals(0, worker.prepareArticles(articles).size(),
-                "Неверная реализация обработки: статья без автора не должна быть сохранена");
+    void testAddNullableArticle() {
+        articles.add(new Article(null, null, null, null));
+        worker.addNewArticles(articles);
+        runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья со всеми пустыми значениями атрибутов не должна быть добавлена в библиотеку\n");
     }
 
-    @DisplayName("Статья без даты")
+    @DisplayName("Обновление каталога статьями с одинаковым названием")
     @Test
-    public void testArticleWithoutDate() {
-        articles.add(new Article(
-                "Hello, Java!",
-                "Some code",
-                "noBrain",
-                null));
-        assertEquals(worker
-                        .prepareArticles(articles)
-                        .get(0)
-                        .getCreationDate(),
-                LocalDate.now(),
-                "Неверная реализация обработки: статья без указанной даты должна получить текущую дату");
+    void testAddNewArticleWithSameNames() {
+        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        runAssertion((msg) -> verify(library, never()).updateCatalog(), "В библиотеку должны добавляться только уникальные статьи\n");
     }
 
-    // добавил distinct().collect(Collectors.toList()); в реализации prepareArticles у worker
-    @DisplayName("Статьи с одинаковым названием")
+    @DisplayName("Обновление каталога статьей без названия")
     @Test
-    public void testArticleWithSameNames() {
-        articles.add(new Article(
-                "Hello, Mockito!",
-                "Where is verify?",
-                "noBrain",
-                LocalDate.of(2023, 10, 16)));
-        articles.add(new Article(
-                "Hello, Mockito!",
-                "Where is verify?",
-                "noBrain",
-                LocalDate.of(2023, 10, 16)));
-        assertEquals(1, worker.prepareArticles(articles).size());
+    void testAddNewArticleWithoutTitle() {
+        articles.add(new Article(null, "Some code", "noBrain", LocalDate.of(2023, 10, 11)));
+        runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без названия не должна быть добавлена в библиотеку\n");
+    }
+
+    @DisplayName("Обновление каталога статьей без контента")
+    @Test
+    void testAddNewArticleWithoutContent() {
+        articles.add(new Article("Hello, Java!", null, "noBrain", LocalDate.of(2023, 10, 11)));
+        runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без контента не должна быть добавлена в библиотеку\n");
+    }
+
+    @DisplayName("Обновление каталога статьей без автора")
+    @Test
+    void testAddNewArticleWithoutAuthor() {
+        articles.add(new Article("Hello, Java!", "Some code", null, LocalDate.of(2023, 10, 11)));
+        runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без автора не должна быть добавлена в библиотеку\n");
+    }
+
+
+    //PREPARE ARTICLES
+    @DisplayName("Подготовка статьи со всеми атрибутами")
+    @Test
+    void testPrepareNewArticle() {
+        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        runAssertion((msg) -> assertEquals(1, worker.prepareArticles(articles).size(), msg), "Статья со всеми атрибутами должна быть сохранена \n");
+    }
+
+    @DisplayName("Подготовка статьи без названия")
+    @Test
+    void testPrepareNewArticleWithoutTitle() {
+        articles.add(new Article(null, "Some code", "noBrain", LocalDate.of(2023, 10, 11)));
+        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(articles).size(), msg), "Статья без названия не должна быть сохранена\n");
+    }
+
+    @DisplayName("Подготовка статьи без контента")
+    @Test
+    void testPrepareNewArticleWithoutContent() {
+        articles.add(new Article("Hello, Java!", null, "noBrain", LocalDate.of(2023, 10, 11)));
+        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(articles).size(), msg), "Статья без контента не должна быть сохранена\n");
+    }
+
+    @DisplayName("Подготовка статьи без автора")
+    @Test
+    void testPrepareNewArticleWithoutAuthor() {
+        articles.add(new Article("Hello, Java!", "Some code", null, LocalDate.of(2023, 10, 11)));
+        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(articles).size(), msg), "Статья без автора не должна быть сохранена\n");
+    }
+
+    @DisplayName("Подготовка статьи без даты")
+    @Test
+    void testPrepareNewArticleWithoutDate() {
+        articles.add(new Article("Hello, Java!", "Some code", "noBrain", null));
+        runAssertion((msg) -> assertEquals(LocalDate.now(), worker.prepareArticles(articles).get(0).getCreationDate(), msg), "Статья без указанной даты должна получать текущую дату\n");
+    }
+
+    @DisplayName("Подготовка статей с одинаковым названием")
+    @Test
+    void testPrepareNewArticleWithSameNames() {
+        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+        runAssertion((msg) -> assertEquals(1, worker.prepareArticles(articles).size(), msg), "На сохранение должны передаваться только уникальные статьи\n");
+    }
+
+    @DisplayName("Подготовка статьи с пустыми значениями атрибутов")
+    @Test
+    void testPrepareNullableArticle() {
+        articles.add(new Article(null, null, null, null));
+        runAssertion((msg) -> assertEquals(0, worker.prepareArticles(articles).size(), msg), "Статья с пустыми значениями атрибутов не должна быть сохранена\n");
     }
 }
