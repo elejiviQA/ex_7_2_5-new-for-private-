@@ -69,9 +69,7 @@ class WorkerImplTest {
     @Test
     @DisplayName("Каталог статей из пустой библиотеки")
     void testGetCatalogFromEmptyLibrary() {
-        runAssertion((msg) -> assertEquals("Список доступных статей:\n", worker.getCatalog(),
-                msg),
-                "Заголовок пустого каталога должен совпадать с тестовым шаблоном\n");
+        runAssertion((msg) -> assertEquals("Список доступных статей:\n", worker.getCatalog(), msg), "Заголовок пустого каталога должен совпадать с тестовым шаблоном\n");
     }
 
     //getCatalog #0
