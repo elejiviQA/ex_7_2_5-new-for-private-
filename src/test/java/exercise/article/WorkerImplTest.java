@@ -120,13 +120,12 @@ class WorkerImplTest {
         runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья со всеми пустыми значениями атрибутов не должна быть добавлена в библиотеку\n");
     }
 
-    @DisplayName("Обновление каталога статьями с одинаковым названием")
+    @DisplayName("Обновление каталога статьей без названия")
     @Test
-    void testAddNewArticleWithSameNames() {
-        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
-        articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
+    void testAddNewArticleWithoutTitle() {
+        articles.add(new Article(null, "Some code", "noBrain", LocalDate.of(2023, 10, 11)));
         worker.addNewArticles(articles);
-        runAssertion((msg) -> verify(library, never()).updateCatalog(), "В библиотеку должны добавляться только уникальные статьи\n");
+        runAssertion((msg) -> verify(library, never()).updateCatalog(), "Статья без названия не должна быть добавлена в библиотеку\n");
     }
 
     @DisplayName("Обновление каталога статьей без контента")
