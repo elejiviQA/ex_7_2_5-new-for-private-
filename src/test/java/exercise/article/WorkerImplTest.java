@@ -96,12 +96,12 @@ class WorkerImplTest {
     }
 
     //UPDATE CATALOG
-    @DisplayName("Обновление каталога статьей со всеми атрибутами")
+    @DisplayName("Обновление каталога статьей со всеми непустыми атрибутами")
     @Test
     void testAddNewArticle() {
         articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
         worker.addNewArticles(articles);
-        runAssertion((msg) -> verify(library, description(msg)).updateCatalog(), "Статье со всеми атрибутами должна быть добавлена в библиотеку\n");
+        runAssertion((msg) -> verify(library, description(msg)).updateCatalog(), "Статья с непустыми значениями атрибутов должна быть добавлена в библиотеку\n");
     }
 
     @DisplayName("Обновление каталога статьей без указанной даты")
@@ -109,7 +109,7 @@ class WorkerImplTest {
     void testAddNewArticleWithoutDate() {
         articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", null));
         worker.addNewArticles(articles);
-        runAssertion((msg) -> verify(library, description(msg)).updateCatalog(), "Статья без указанной даты должна быть добавлена в библиотеку\n");
+        runAssertion((msg) -> verify(library, description(msg)).updateCatalog(), "Статья без указанной даты в итоге должна быть добавлена в библиотеку\n");
     }
 
     @DisplayName("Обновление каталога статьей со всеми пустыми значениями атрибутов")
@@ -146,11 +146,11 @@ class WorkerImplTest {
 
 
     //PREPARE ARTICLES
-    @DisplayName("Подготовка статьи со всеми атрибутами")
+    @DisplayName("Подготовка статьи со всеми непустыми атрибутами")
     @Test
     void testPrepareNewArticle() {
         articles.add(new Article("Hello, Mockito!", "Where is verify?", "noBrain", LocalDate.of(2023, 10, 16)));
-        runAssertion((msg) -> assertEquals(1, worker.prepareArticles(articles).size(), msg), "Статья со всеми атрибутами должна быть сохранена \n");
+        runAssertion((msg) -> assertEquals(1, worker.prepareArticles(articles).size(), msg), "Статья со всеми непустыми атрибутами должна быть сохранена \n");
     }
 
     @DisplayName("Подготовка статьи без названия")
